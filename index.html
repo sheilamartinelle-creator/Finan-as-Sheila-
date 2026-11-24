@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Finanças Mês a Mês — Planejamento & Férias</title>
+<meta name="theme-color" content="#0D6B56">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Finanças">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+:root {
+  --bg: #F2F5F4;
+  --surface: #FFFFFF;
+  --surface-alt: #F8FAF9;
+  --fg: #15201D;
+  --muted: #58675F;
+  --line: #DAE3DF;
+  --accent: #0D6B56;
+  --accent-fg: #FFFFFF;
+  --accent-soft: #E1EFEA;
+  --pos: #13765A;
+  --neg: #B3261E;
+  --neg-soft: #FBE8E5;
+  --warn: #7F4E00;
+  --warn-soft: #FFF0D2;
+  --info-soft: #E6EEF8;
+  --info: #234E85;
+  --series-a: #0D6B56;
+  --series-b: #C26A00;
+  --font-display: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1412; --surface: #151F1D; --surface-alt: #1A2724; --fg: #E7F0ED; --muted: #94A7A1; --line: #25332F;
+    --accent: #55C7A4; --accent-fg: #07211A; --accent-soft: #163029;
+    --pos: #62D2AC; --neg: #FF9A90; --neg-soft: #3A1E1C;
+    --warn: #F2BD62; --warn-soft: #35280F; --info-soft: #172640; --info: #A9C6F2;
+    --series-a: #55C7A4; --series-b: #F0A64A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1412; --surface: #151F1D; --surface-alt: #1A2724; --fg: #E7F0ED; --muted: #94A7A1; --line: #25332F;
+  --accent: #55C7A4; --accent-fg: #07211A; --accent-soft: #163029;
+  --pos: #62D2AC; --neg: #FF9A90; --neg-soft: #3A1E1C;
+  --warn: #F2BD62; --warn-soft: #35280F; --info-soft: #172640; --info: #A9C6F2;
+  --series-a: #55C7A4; --series-b: #F0A64A;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.45;
+  padding-block: 0 3.5rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--bg);
+}
+.wrap { max-width: 720px; margin-inline: auto; }
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg); padding-block: 0.75rem 0.5rem;
+  border-bottom: 1px solid transparent;
+}
+.top-row { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; flex-wrap: wrap; }
+h1 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+.top-actions { display: flex; align-items: center; gap: 0.45rem; }
+.stamp { font-size: 0.75rem; color: var(--muted); }
+.icon-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.35rem 0.65rem; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--fg); font: 500 0.78rem var(--font-body);
+  cursor: pointer; transition: background 0.15s, border-color 0.15s;
+}
+.icon-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+.icon-btn.danger:hover { background: var(--neg-soft); border-color: var(--neg); color: var(--neg); }
+
+.months { display: flex; gap: 0.45rem; overflow-x: auto; scrollbar-width: none; padding-bottom: 0.25rem; }
+.months::-webkit-scrollbar { display: none; }
+.chip {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.48rem 0.8rem; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--fg); font: 600 0.84rem var(--font-body); cursor: pointer;
+}
+.chip[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--neg); }
+.chip .dot-vac { width: 7px; height: 7px; border-radius: 50%; background: var(--series-b); }
+.chip[aria-current="true"] .dot, .chip[aria-current="true"] .dot-vac { background: var(--accent-fg); }
+.chip:focus-visible, input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+main { display: flex; flex-direction: column; gap: 1rem; padding-top: 0.5rem; }
+.hero, .card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 1.05rem;
+}
+.eyebrow { margin: 0; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.big { margin: 0.25rem 0 0; font-family: var(--font-display); font-weight: 700; font-size: 2.25rem; line-height: 1.1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.big.pos { color: var(--pos); } .big.neg { color: var(--neg); }
+.big-label { margin: 0.15rem 0 0.9rem; color: var(--muted); font-size: 0.85rem; }
+.stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem 1rem; margin: 0; padding-top: 0.9rem; border-top: 1px solid var(--line); }
+@media (min-width: 520px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+.stat { min-width: 0; }
+.stat dt { font-size: 0.74rem; color: var(--muted); }
+.stat dd { margin: 0.12rem 0 0; font-family: var(--font-display); font-weight: 600; font-size: 1.02rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.stat dd.neg { color: var(--neg); }
+.stat dd.pos { color: var(--pos); }
+
+.alerts { display: flex; flex-direction: column; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+.alert { border-radius: 12px; padding: 0.72rem 0.9rem; font-size: 0.87rem; }
+.alert b { font-weight: 600; }
+.alert.neg { background: var(--neg-soft); color: var(--neg); }
+.alert.warn { background: var(--warn-soft); color: var(--warn); }
+.alert.info { background: var(--info-soft); color: var(--info); }
+.alert.pos { background: var(--accent-soft); color: var(--pos); }
+
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; margin-bottom: 0.65rem; flex-wrap: wrap; }
+h2 { font-family: var(--font-display); font-size: 1.02rem; font-weight: 600; margin: 0; }
+.sub { font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; margin-bottom: 0.45rem; }
+.bar span { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+@media (prefers-reduced-motion: no-preference) { .bar span { transition: width 0.25s ease; } }
+
+/* Filtros & Badges */
+.filters { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.55rem; }
+.f-btn {
+  padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--surface-alt); color: var(--muted); font: 500 0.75rem var(--font-body); cursor: pointer;
+}
+.f-btn.active { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+.badge {
+  display: inline-block; padding: 0.1rem 0.42rem; border-radius: 6px; font-size: 0.68rem; font-weight: 600;
+  background: var(--surface-alt); color: var(--muted); border: 1px solid var(--line); margin-left: 0.4rem; vertical-align: middle;
+}
+.badge.pontual { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+.badge.divida { background: var(--neg-soft); color: var(--neg); border-color: transparent; }
+
+.list { list-style: none; margin: 0.35rem 0 0; padding: 0; }
+.row { display: flex; align-items: center; gap: 0.5rem; border-top: 1px solid var(--line); padding: 0.55rem 0; }
+.row:first-child { border-top: 0; }
+.row label { display: flex; align-items: center; gap: 0.65rem; flex: 1 1 auto; min-width: 0; cursor: pointer; border-radius: 8px; }
+.row input[type="checkbox"] { width: 1.25rem; height: 1.25rem; flex: 0 0 auto; accent-color: var(--accent); margin: 0; }
+.row .name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; font-size: 0.92rem; }
+.row .name small { display: block; color: var(--muted); font-size: 0.76rem; margin-top: 0.1rem; }
+.row .val { flex: 0 0 auto; font-family: var(--font-display); font-weight: 600; font-variant-numeric: tabular-nums; font-size: 0.94rem; }
+.row.done .name, .row.done .val { color: var(--muted); text-decoration: line-through; }
+.del-btn {
+  background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 0.25rem 0.4rem;
+  border-radius: 6px; font-size: 0.85rem; line-height: 1; flex: 0 0 auto;
+}
+.del-btn:hover { background: var(--neg-soft); color: var(--neg); }
+
+.plain { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.55rem 0; border-top: 1px solid var(--line); font-size: 0.92rem; }
+.plain:first-of-type { border-top: 0; }
+.plain span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.plain span:last-child { font-family: var(--font-display); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+
+/* Formulários inline */
+.add-form {
+  display: grid; grid-template-columns: 1fr 115px auto; gap: 0.45rem;
+  margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--line);
+}
+.add-form.saidas-grid { grid-template-columns: 1fr 105px 105px auto; }
+@media (max-width: 520px) {
+  .add-form, .add-form.saidas-grid { grid-template-columns: 1fr 1fr; }
+  .add-form input[type="text"] { grid-column: 1 / -1; }
+  .add-form button { grid-column: 1 / -1; }
+}
+.inp {
+  width: 100%; padding: 0.48rem 0.65rem; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface-alt); color: var(--fg); font: 400 0.85rem var(--font-body);
+}
+.btn-primary {
+  padding: 0.48rem 0.85rem; border-radius: 8px; border: none;
+  background: var(--accent); color: var(--accent-fg); font: 600 0.83rem var(--font-body); cursor: pointer;
+}
+.btn-primary:hover { opacity: 0.92; }
+
+/* Painel Salário 2x2 & Férias */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+@media (max-width: 520px) { .grid-2 { grid-template-columns: 1fr; } }
+.box-info {
+  background: var(--surface-alt); border: 1px solid var(--line); border-radius: 10px; padding: 0.75rem 0.85rem;
+}
+.box-info h3 { margin: 0 0 0.45rem; font-family: var(--font-display); font-size: 0.88rem; font-weight: 600; color: var(--accent); }
+.mini-row { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.82rem; padding: 0.22rem 0; border-bottom: 1px solid var(--line); }
+.mini-row:last-child { border-bottom: 0; }
+.mini-row span:last-child { font-family: var(--font-display); font-weight: 600; font-variant-numeric: tabular-nums; }
+.mini-row.total { font-weight: 700; color: var(--pos); padding-top: 0.38rem; margin-top: 0.15rem; border-top: 1px solid var(--line); border-bottom: 0; }
+.sim-controls {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.55rem;
+  background: var(--surface-alt); border: 1px solid var(--line); border-radius: 10px; padding: 0.75rem; margin-bottom: 0.75rem;
+}
+@media (max-width: 560px) { .sim-controls { grid-template-columns: 1fr 1fr; } }
+.field label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 0.2rem; font-weight: 500; }
+
+/* Gráfico */
+.chart { width: 100%; height: auto; display: block; }
+.chart text { fill: var(--muted); font: 500 10px var(--font-body); }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart .zero { stroke: var(--muted); stroke-width: 1; }
+.chart .a { stroke: var(--series-a); fill: none; stroke-width: 2.25; stroke-linejoin: round; stroke-linecap: round; }
+.chart .b { stroke: var(--series-b); fill: none; stroke-width: 2.25; stroke-linejoin: round; stroke-linecap: round; }
+.chart .pa { fill: var(--series-a); stroke: var(--surface); stroke-width: 2; }
+.chart .pb { fill: var(--series-b); stroke: var(--surface); stroke-width: 2; }
+.chart .sel { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
+.legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin-top: 0.5rem; font-size: 0.82rem; }
+.legend span { display: inline-flex; align-items: center; gap: 0.4rem; font-variant-numeric: tabular-nums; }
+.legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.legend .a i { background: var(--series-a); } .legend .b i { background: var(--series-b); }
+.note { margin: 0.6rem 0 0; font-size: 0.78rem; color: var(--muted); }
+footer { margin-top: 1.5rem; font-size: 0.78rem; color: var(--muted); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="top-row">
+      <h1>Finanças mês a mês</h1>
+      <div class="top-actions">
+        <button type="button" class="icon-btn" id="btn-install" style="display:none;background:var(--accent);color:var(--accent-fg);border-color:var(--accent)" title="Instalar aplicativo no aparelho">📲 Instalar App</button>
+        <button type="button" class="icon-btn" id="btn-theme" title="Alternar tema claro/escuro">🌓 Tema</button>
+        <button type="button" class="icon-btn" id="btn-export" title="Baixar backup JSON">⬇ Exportar</button>
+        <button type="button" class="icon-btn" id="btn-import" title="Carregar backup JSON">⬆ Importar</button>
+        <input type="file" id="file-import" accept=".json,application/json" style="display:none">
+        <button type="button" class="icon-btn danger" id="btn-reset" title="Voltar aos valores originais">↺ Padrão</button>
+      </div>
+    </div>
+    <nav class="months" id="months" aria-label="Escolha o mês"></nav>
+  </header>
+  <main id="app"></main>
+  <footer>
+    <span>Dados salvos automaticamente neste navegador.</span>
+    <span class="stamp">Atualizado em 24/11/2026</span>
+  </footer>
+</div>
+
+<script type="application/json" id="data">{"months": [{"key": "2026-11", "label": "11/2026", "entradas": [{"nome": "Saldo em conta (inicial)", "valor": 11190.0}, {"nome": "Salário líquido (já desc. consignado 4/48 de R$ 2.857)", "valor": 7300.0}, {"nome": "13º", "valor": 7335.25}, {"nome": "Bônus no cartão", "valor": 150}], "saidas": [{"id": "r_pai", "nome": "Despesa Pai (venc. 30/11)", "tipo": "Pontual", "valor": 11000.0}, {"id": "r5", "nome": "Aluguel + condomínio", "tipo": "Fixa", "valor": 1182}, {"id": "r6", "nome": "Luz", "tipo": "Fixa", "valor": 400}, {"id": "r7", "nome": "Internet", "tipo": "Fixa", "valor": 99}, {"id": "r8", "nome": "Celular Claro", "tipo": "Fixa", "valor": 73}, {"id": "r9", "nome": "Celular Vivo", "tipo": "Fixa", "valor": 90}, {"id": "r10", "nome": "Spotify", "tipo": "Fixa", "valor": 41}, {"id": "r11", "nome": "Google One", "tipo": "Fixa", "valor": 24}, {"id": "r12", "nome": "Gasolina", "tipo": "Variável", "valor": 500}, {"id": "r13", "nome": "Mercado/alimentação (aprox.)", "tipo": "Variável", "valor": 1000}, {"id": "r14", "nome": "Placa solar (mensal até abr/2028)", "tipo": "Parcelada", "valor": 280}, {"id": "r15", "nome": "Placa solar – parcela em atraso", "tipo": "Parcelada", "valor": 280}, {"id": "r16", "nome": "Faculdade Fernanda", "tipo": "Parcelada", "valor": 1300}, {"id": "r17", "nome": "Faculdade Sheila", "tipo": "Parcelada", "valor": 130}, {"id": "r18", "nome": "Marcos (faltam R$ 2.500)", "tipo": "Dívida", "valor": 500}, {"id": "r19", "nome": "C6 – parcela 20/36", "tipo": "Parcelada", "valor": 91}, {"id": "r20", "nome": "C6 – parcela 8/11", "tipo": "Parcelada", "valor": 65}, {"id": "r21", "nome": "Itaú – parcela 18/46", "tipo": "Parcelada", "valor": 365}, {"id": "r22", "nome": "IPVA – parcela 2/3", "tipo": "Parcelada", "valor": 157}, {"id": "r26", "nome": "Gastos com Fernanda (além da faculdade)", "tipo": "Pontual", "valor": 1000}, {"id": "r23", "nome": "Boticário Pix (venc. 4, 16 e 23/12 — cobrir c/ pgto 30/11)", "tipo": "Parcelada", "valor": 816.2}, {"id": "r_cooperfemsa", "nome": "Cooperfemsa (venc. 30/11)", "tipo": "Pontual", "valor": 251.0}], "totEntradas": 25975.25, "totSaidas": 19644.2, "sobra": 6331.05, "aporte": 0.0, "saldo": 6331.05, "reserva": 0.0, "total": 6331.05}, {"key": "2026-12", "label": "12/2026", "entradas": [{"nome": "Salário líquido (já desc. consignado 5/48 de R$ 2.857)", "valor": 7300.0}, {"nome": "Aluguel recebido (chq dia 10, até abr/2027)", "valor": 1300.0}, {"nome": "13º Salário — 2ª parcela líquida (est.)", "valor": 2265.98}], "saidas": [{"id": "r5", "nome": "Aluguel + condomínio", "tipo": "Fixa", "valor": 1182}, {"id": "r6", "nome": "Luz", "tipo": "Fixa", "valor": 400}, {"id": "r7", "nome": "Internet", "tipo": "Fixa", "valor": 99}, {"id": "r8", "nome": "Celular Claro", "tipo": "Fixa", "valor": 73}, {"id": "r9", "nome": "Celular Vivo", "tipo": "Fixa", "valor": 90}, {"id": "r10", "nome": "Spotify", "tipo": "Fixa", "valor": 41}, {"id": "r11", "nome": "Google One", "tipo": "Fixa", "valor": 24}, {"id": "r12", "nome": "Gasolina", "tipo": "Variável", "valor": 500}, {"id": "r13", "nome": "Mercado/alimentação (aprox.)", "tipo": "Variável", "valor": 1000}, {"id": "r14", "nome": "Placa solar (mensal até abr/2028)", "tipo": "Parcelada", "valor": 280}, {"id": "r16", "nome": "Faculdade Fernanda", "tipo": "Parcelada", "valor": 1300}, {"id": "r17", "nome": "Faculdade Sheila", "tipo": "Parcelada", "valor": 130}, {"id": "r18", "nome": "Marcos (faltam R$ 2.500)", "tipo": "Dívida", "valor": 500}, {"id": "r19", "nome": "C6 – parcela 20/36", "tipo": "Parcelada", "valor": 91}, {"id": "r20", "nome": "C6 – parcela 8/11", "tipo": "Parcelada", "valor": 65}, {"id": "r21", "nome": "Itaú – parcela 18/46", "tipo": "Parcelada", "valor": 365}, {"id": "r22", "nome": "IPVA – parcela 2/3", "tipo": "Parcelada", "valor": 157}, {"id": "r25", "nome": "Cartão de crédito – faturas (ver aba Cartão)", "tipo": "Dívida", "valor": 6243.57}, {"id": "r23", "nome": "Boticário Pix (venc. jan/27 — cobrir c/ pgto 30/12)", "tipo": "Parcelada", "valor": 608.11}], "totEntradas": 10865.98, "totSaidas": 13148.68, "sobra": -2282.7, "aporte": 500.0, "saldo": 3548.35, "reserva": 500.0, "total": 4048.35}, {"key": "2027-01", "label": "01/2027", "entradas": [{"nome": "Salário líquido (desc. consig. 6/48 + novo 1/48 de R$ 508)", "valor": 6792.0}, {"nome": "Aluguel recebido (chq dia 10, até abr/2027)", "valor": 1300.0}], "saidas": [{"id": "r5", "nome": "Aluguel + condomínio", "tipo": "Fixa", "valor": 1182}, {"id": "r6", "nome": "Luz", "tipo": "Fixa", "valor": 400}, {"id": "r7", "nome": "Internet", "tipo": "Fixa", "valor": 99}, {"id": "r8", "nome": "Celular Claro", "tipo": "Fixa", "valor": 73}, {"id": "r9", "nome": "Celular Vivo", "tipo": "Fixa", "valor": 90}, {"id": "r10", "nome": "Spotify", "tipo": "Fixa", "valor": 41}, {"id": "r11", "nome": "Google One", "tipo": "Fixa", "valor": 24}, {"id": "r12", "nome": "Gasolina", "tipo": "Variável", "valor": 500}, {"id": "r13", "nome": "Mercado/alimentação (aprox.)", "tipo": "Variável", "valor": 1000}, {"id": "r14", "nome": "Placa solar (mensal até abr/2028)", "tipo": "Parcelada", "valor": 280}, {"id": "r16", "nome": "Faculdade Fernanda", "tipo": "Parcelada", "valor": 1300}, {"id": "r17", "nome": "Faculdade Sheila", "tipo": "Parcelada", "valor": 130}, {"id": "r18", "nome": "Marcos (faltam R$ 2.500)", "tipo": "Dívida", "valor": 500}, {"id": "r19", "nome": "C6 – parcela 20/36", "tipo": "Parcelada", "valor": 91}, {"id": "r20", "nome": "C6 – parcela 8/11", "tipo": "Parcelada", "valor": 65}, {"id": "r21", "nome": "Itaú – parcela 18/46", "tipo": "Parcelada", "valor": 365}, {"id": "r25", "nome": "Cartão de crédito – faturas (ver aba Cartão)", "tipo": "Dívida", "valor": 978.95}, {"id": "r23", "nome": "Boticário Pix (venc. fev/27 — cobrir c/ pgto 30/01)", "tipo": "Parcelada", "valor": 608.08}], "totEntradas": 8092.0, "totSaidas": 7727.03, "sobra": 364.97, "aporte": 500.0, "saldo": 3413.32, "reserva": 1000.0, "total": 4413.32}, {"key": "2027-02", "label": "02/2027", "entradas": [{"nome": "Salário líquido (desc. consig. 7/48 + novo 2/48 de R$ 508)", "valor": 6792.0}, {"nome": "Aluguel recebido (chq dia 10, até abr/2027)", "valor": 1300.0}], "saidas": [{"id": "r5", "nome": "Aluguel + condomínio", "tipo": "Fixa", "valor": 1182}, {"id": "r6", "nome": "Luz", "tipo": "Fixa", "valor": 400}, {"id": "r7", "nome": "Internet", "tipo": "Fixa", "valor": 99}, {"id": "r8", "nome": "Celular Claro", "tipo": "Fixa", "valor": 73}, {"id": "r9", "nome": "Celular Vivo", "tipo": "Fixa", "valor": 90}, {"id": "r10", "nome": "Spotify", "tipo": "Fixa", "valor": 41}, {"id": "r11", "nome": "Google One", "tipo": "Fixa", "valor": 24}, {"id": "r12", "nome": "Gasolina", "tipo": "Variável", "valor": 500}, {"id": "r13", "nome": "Mercado/alimentação (aprox.)", "tipo": "Variável", "valor": 1000}, {"id": "r14", "nome": "Placa solar (mensal até abr/2028)", "tipo": "Parcelada", "valor": 280}, {"id": "r16", "nome": "Faculdade Fernanda", "tipo": "Parcelada", "valor": 1300}, {"id": "r17", "nome": "Faculdade Sheila", "tipo": "Parcelada", "valor": 130}, {"id": "r18", "nome": "Marcos (faltam R$ 2.500)", "tipo": "Dívida", "valor": 500}, {"id": "r19", "nome": "C6 – parcela 20/36", "tipo": "Parcelada", "valor": 91}, {"id": "r20", "nome": "C6 – parcela 8/11", "tipo": "Parcelada", "valor": 65}, {"id": "r21", "nome": "Itaú – parcela 18/46", "tipo": "Parcelada", "valor": 365}, {"id": "r25", "nome": "Cartão de crédito – faturas (ver aba Cartão)", "tipo": "Dívida", "valor": 648.02}], "totEntradas": 8092.0, "totSaidas": 6788.02, "sobra": 1303.98, "aporte": 500.0, "saldo": 4217.3, "reserva": 1500.0, "total": 5717.3}, {"key": "2027-03", "label": "03/2027", "entradas": [{"nome": "Salário líquido (desc. consig. 8/48 + novo 3/48 de R$ 508)", "valor": 6792.0}, {"nome": "Aluguel recebido (chq dia 10, até abr/2027)", "valor": 1300.0}, {"nome": "PPR", "valor": 6771}, {"nome": "Férias (20d + 1/3) + Abono (10d + 1/3) líq.", "valor": 14323.69}], "saidas": [{"id": "r5", "nome": "Aluguel + condomínio", "tipo": "Fixa", "valor": 1182}, {"id": "r6", "nome": "Luz", "tipo": "Fixa", "valor": 400}, {"id": "r7", "nome": "Internet", "tipo": "Fixa", "valor": 99}, {"id": "r8", "nome": "Celular Claro", "tipo": "Fixa", "valor": 73}, {"id": "r9", "nome": "Celular Vivo", "tipo": "Fixa", "valor": 90}, {"id": "r10", "nome": "Spotify", "tipo": "Fixa", "valor": 41}, {"id": "r11", "nome": "Google One", "tipo": "Fixa", "valor": 24}, {"id": "r12", "nome": "Gasolina", "tipo": "Variável", "valor": 500}, {"id": "r13", "nome": "Mercado/alimentação (aprox.)", "tipo": "Variável", "valor": 1000}, {"id": "r14", "nome": "Placa solar (mensal até abr/2028)", "tipo": "Parcelada", "valor": 280}, {"id": "r16", "nome": "Faculdade Fernanda", "tipo": "Parcelada", "valor": 1300}, {"id": "r17", "nome": "Faculdade Sheila", "tipo": "Parcelada", "valor": 130}, {"id": "r18", "nome": "Marcos (faltam R$ 2.500)", "tipo": "Dívida", "valor": 500}, {"id": "r19", "nome": "C6 – parcela 20/36", "tipo": "Parcelada", "valor": 91}, {"id": "r21", "nome": "Itaú – parcela 18/46", "tipo": "Parcelada", "valor": 365}, {"id": "r25", "nome": "Cartão de crédito – faturas (ver aba Cartão)", "tipo": "Dívida", "valor": 480.4}], "totEntradas": 29186.69, "totSaidas": 6555.4, "sobra": 22631.29, "aporte": 2531.3, "saldo": 24317.29, "reserva": 4031.3, "total": 28348.59}, {"key": "2027-04", "label": "04/2027", "entradas": [{"nome": "Salário 21d pós-férias (desc. consig. 9/48 + novo 4/48 de R$ 508)", "valor": 3744.9}, {"nome": "Aluguel recebido (chq dia 10, até abr/2027)", "valor": 1300.0}], "saidas": [{"id": "r5", "nome": "Aluguel + condomínio", "tipo": "Fixa", "valor": 1182}, {"id": "r6", "nome": "Luz", "tipo": "Fixa", "valor": 400}, {"id": "r7", "nome": "Internet", "tipo": "Fixa", "valor": 99}, {"id": "r8", "nome": "Celular Claro", "tipo": "Fixa", "valor": 73}, {"id": "r9", "nome": "Celular Vivo", "tipo": "Fixa", "valor": 90}, {"id": "r10", "nome": "Spotify", "tipo": "Fixa", "valor": 41}, {"id": "r11", "nome": "Google One", "tipo": "Fixa", "valor": 24}, {"id": "r12", "nome": "Gasolina", "tipo": "Variável", "valor": 500}, {"id": "r13", "nome": "Mercado/alimentação (aprox.)", "tipo": "Variável", "valor": 1000}, {"id": "r14", "nome": "Placa solar (mensal até abr/2028)", "tipo": "Parcelada", "valor": 280}, {"id": "r16", "nome": "Faculdade Fernanda", "tipo": "Parcelada", "valor": 1300}, {"id": "r17", "nome": "Faculdade Sheila", "tipo": "Parcelada", "valor": 130}, {"id": "r19", "nome": "C6 – parcela 20/36", "tipo": "Parcelada", "valor": 91}, {"id": "r21", "nome": "Itaú – parcela 18/46", "tipo": "Parcelada", "valor": 365}, {"id": "r24", "nome": "Prestação da casa (a partir de abr/27)", "tipo": "Fixa", "valor": 280}, {"id": "r25", "nome": "Cartão de crédito – faturas (ver aba Cartão)", "tipo": "Dívida", "valor": 320.15}], "totEntradas": 5044.9, "totSaidas": 6175.15, "sobra": -1130.25, "aporte": 500, "saldo": 22687.04, "reserva": 4531.3, "total": 27218.34}, {"key": "2027-05", "label": "05/2027", "entradas": [{"nome": "Salário líquido (desc. consig. 10/48 + novo 5/48 de R$ 508)", "valor": 6792.0}], "saidas": [{"id": "r5", "nome": "Aluguel + condomínio", "tipo": "Fixa", "valor": 1182}, {"id": "r6", "nome": "Luz", "tipo": "Fixa", "valor": 400}, {"id": "r7", "nome": "Internet", "tipo": "Fixa", "valor": 99}, {"id": "r8", "nome": "Celular Claro", "tipo": "Fixa", "valor": 73}, {"id": "r9", "nome": "Celular Vivo", "tipo": "Fixa", "valor": 90}, {"id": "r10", "nome": "Spotify", "tipo": "Fixa", "valor": 41}, {"id": "r11", "nome": "Google One", "tipo": "Fixa", "valor": 24}, {"id": "r12", "nome": "Gasolina", "tipo": "Variável", "valor": 500}, {"id": "r13", "nome": "Mercado/alimentação (aprox.)", "tipo": "Variável", "valor": 1000}, {"id": "r14", "nome": "Placa solar (mensal até abr/2028)", "tipo": "Parcelada", "valor": 280}, {"id": "r16", "nome": "Faculdade Fernanda", "tipo": "Parcelada", "valor": 1300}, {"id": "r17", "nome": "Faculdade Sheila", "tipo": "Parcelada", "valor": 130}, {"id": "r19", "nome": "C6 – parcela 20/36", "tipo": "Parcelada", "valor": 91}, {"id": "r21", "nome": "Itaú – parcela 18/46", "tipo": "Parcelada", "valor": 365}, {"id": "r24", "nome": "Prestação da casa (a partir de abr/27)", "tipo": "Fixa", "valor": 280}, {"id": "r25", "nome": "Cartão de crédito – faturas (ver aba Cartão)", "tipo": "Dívida", "valor": 283.2}], "totEntradas": 6792.0, "totSaidas": 6138.2, "sobra": 653.8, "aporte": 500, "saldo": 22840.84, "reserva": 5031.3, "total": 27872.14}, {"key": "2027-06", "label": "06/2027", "entradas": [{"nome": "Salário líquido (desc. consig. 11/48 + novo 6/48 de R$ 508)", "valor": 6792.0}], "saidas": [{"id": "r5", "nome": "Aluguel + condomínio", "tipo": "Fixa", "valor": 1182}, {"id": "r6", "nome": "Luz", "tipo": "Fixa", "valor": 400}, {"id": "r7", "nome": "Internet", "tipo": "Fixa", "valor": 99}, {"id": "r8", "nome": "Celular Claro", "tipo": "Fixa", "valor": 73}, {"id": "r9", "nome": "Celular Vivo", "tipo": "Fixa", "valor": 90}, {"id": "r10", "nome": "Spotify", "tipo": "Fixa", "valor": 41}, {"id": "r11", "nome": "Google One", "tipo": "Fixa", "valor": 24}, {"id": "r12", "nome": "Gasolina", "tipo": "Variável", "valor": 500}, {"id": "r13", "nome": "Mercado/alimentação (aprox.)", "tipo": "Variável", "valor": 1000}, {"id": "r14", "nome": "Placa solar (mensal até abr/2028)", "tipo": "Parcelada", "valor": 280}, {"id": "r16", "nome": "Faculdade Fernanda", "tipo": "Parcelada", "valor": 1300}, {"id": "r17", "nome": "Faculdade Sheila", "tipo": "Parcelada", "valor": 130}, {"id": "r19", "nome": "C6 – parcela 20/36", "tipo": "Parcelada", "valor": 91}, {"id": "r21", "nome": "Itaú – parcela 18/46", "tipo": "Parcelada", "valor": 365}, {"id": "r24", "nome": "Prestação da casa (a partir de abr/27)", "tipo": "Fixa", "valor": 280}, {"id": "r25", "nome": "Cartão de crédito – faturas (ver aba Cartão)", "tipo": "Dívida", "valor": 216.62}], "totEntradas": 6792.0, "totSaidas": 6071.62, "sobra": 720.38, "aporte": 500, "saldo": 23061.22, "reserva": 5531.3, "total": 28592.52}, {"key": "2027-07", "label": "07/2027", "entradas": [{"nome": "Salário líquido (desc. consig. 12/48 + novo 7/48 de R$ 508)", "valor": 6792.0}], "saidas": [{"id": "r5", "nome": "Aluguel + condomínio", "tipo": "Fixa", "valor": 1182}, {"id": "r6", "nome": "Luz", "tipo": "Fixa", "valor": 400}, {"id": "r7", "nome": "Internet", "tipo": "Fixa", "valor": 99}, {"id": "r8", "nome": "Celular Claro", "tipo": "Fixa", "valor": 73}, {"id": "r9", "nome": "Celular Vivo", "tipo": "Fixa", "valor": 90}, {"id": "r10", "nome": "Spotify", "tipo": "Fixa", "valor": 41}, {"id": "r11", "nome": "Google One", "tipo": "Fixa", "valor": 24}, {"id": "r12", "nome": "Gasolina", "tipo": "Variável", "valor": 500}, {"id": "r13", "nome": "Mercado/alimentação (aprox.)", "tipo": "Variável", "valor": 1000}, {"id": "r14", "nome": "Placa solar (mensal até abr/2028)", "tipo": "Parcelada", "valor": 280}, {"id": "r16", "nome": "Faculdade Fernanda", "tipo": "Parcelada", "valor": 1300}, {"id": "r17", "nome": "Faculdade Sheila", "tipo": "Parcelada", "valor": 130}, {"id": "r19", "nome": "C6 – parcela 20/36", "tipo": "Parcelada", "valor": 91}, {"id": "r21", "nome": "Itaú – parcela 18/46", "tipo": "Parcelada", "valor": 365}, {"id": "r24", "nome": "Prestação da casa (a partir de abr/27)", "tipo": "Fixa", "valor": 280}, {"id": "r25", "nome": "Cartão de crédito – faturas (ver aba Cartão)", "tipo": "Dívida", "valor": 96.62}], "totEntradas": 6792.0, "totSaidas": 5951.62, "sobra": 840.38, "aporte": 500, "saldo": 23401.6, "reserva": 6031.3, "total": 29432.9}, {"key": "2027-08", "label": "08/2027", "entradas": [{"nome": "Salário líquido (desc. consig. 13/48 + novo 8/48 de R$ 508)", "valor": 6792.0}], "saidas": [{"id": "r5", "nome": "Aluguel + condomínio", "tipo": "Fixa", "valor": 1182}, {"id": "r6", "nome": "Luz", "tipo": "Fixa", "valor": 400}, {"id": "r7", "nome": "Internet", "tipo": "Fixa", "valor": 99}, {"id": "r8", "nome": "Celular Claro", "tipo": "Fixa", "valor": 73}, {"id": "r9", "nome": "Celular Vivo", "tipo": "Fixa", "valor": 90}, {"id": "r10", "nome": "Spotify", "tipo": "Fixa", "valor": 41}, {"id": "r11", "nome": "Google One", "tipo": "Fixa", "valor": 24}, {"id": "r12", "nome": "Gasolina", "tipo": "Variável", "valor": 500}, {"id": "r13", "nome": "Mercado/alimentação (aprox.)", "tipo": "Variável", "valor": 1000}, {"id": "r14", "nome": "Placa solar (mensal até abr/2028)", "tipo": "Parcelada", "valor": 280}, {"id": "r16", "nome": "Faculdade Fernanda", "tipo": "Parcelada", "valor": 1300}, {"id": "r17", "nome": "Faculdade Sheila", "tipo": "Parcelada", "valor": 130}, {"id": "r19", "nome": "C6 – parcela 20/36", "tipo": "Parcelada", "valor": 91}, {"id": "r21", "nome": "Itaú – parcela 18/46", "tipo": "Parcelada", "valor": 365}, {"id": "r24", "nome": "Prestação da casa (a partir de abr/27)", "tipo": "Fixa", "valor": 280}, {"id": "r25", "nome": "Cartão de crédito – faturas (ver aba Cartão)", "tipo": "Dívida", "valor": 96.62}], "totEntradas": 6792.0, "totSaidas": 5951.62, "sobra": 840.38, "aporte": 500, "saldo": 23741.98, "reserva": 6531.3, "total": 30273.28}, {"key": "2027-09", "label": "09/2027", "entradas": [{"nome": "Salário líquido (desc. consig. 14/48 + novo 9/48 de R$ 508)", "valor": 6792.0}], "saidas": [{"id": "r5", "nome": "Aluguel + condomínio", "tipo": "Fixa", "valor": 1182}, {"id": "r6", "nome": "Luz", "tipo": "Fixa", "valor": 400}, {"id": "r7", "nome": "Internet", "tipo": "Fixa", "valor": 99}, {"id": "r8", "nome": "Celular Claro", "tipo": "Fixa", "valor": 73}, {"id": "r9", "nome": "Celular Vivo", "tipo": "Fixa", "valor": 90}, {"id": "r10", "nome": "Spotify", "tipo": "Fixa", "valor": 41}, {"id": "r11", "nome": "Google One", "tipo": "Fixa", "valor": 24}, {"id": "r12", "nome": "Gasolina", "tipo": "Variável", "valor": 500}, {"id": "r13", "nome": "Mercado/alimentação (aprox.)", "tipo": "Variável", "valor": 1000}, {"id": "r14", "nome": "Placa solar (mensal até abr/2028)", "tipo": "Parcelada", "valor": 280}, {"id": "r16", "nome": "Faculdade Fernanda", "tipo": "Parcelada", "valor": 1300}, {"id": "r17", "nome": "Faculdade Sheila", "tipo": "Parcelada", "valor": 130}, {"id": "r19", "nome": "C6 – parcela 20/36", "tipo": "Parcelada", "valor": 91}, {"id": "r21", "nome": "Itaú – parcela 18/46", "tipo": "Parcelada", "valor": 365}, {"id": "r24", "nome": "Prestação da casa (a partir de abr/27)", "tipo": "Fixa", "valor": 280}], "totEntradas": 6792.0, "totSaidas": 5855, "sobra": 937.0, "aporte": 500, "saldo": 24178.98, "reserva": 7031.3, "total": 31210.28}, {"key": "2027-10", "label": "10/2027", "entradas": [{"nome": "Salário líquido (desc. consig. 15/48 + novo 10/48 de R$ 508)", "valor": 6792.0}], "saidas": [{"id": "r5", "nome": "Aluguel + condomínio", "tipo": "Fixa", "valor": 1182}, {"id": "r6", "nome": "Luz", "tipo": "Fixa", "valor": 400}, {"id": "r7", "nome": "Internet", "tipo": "Fixa", "valor": 99}, {"id": "r8", "nome": "Celular Claro", "tipo": "Fixa", "valor": 73}, {"id": "r9", "nome": "Celular Vivo", "tipo": "Fixa", "valor": 90}, {"id": "r10", "nome": "Spotify", "tipo": "Fixa", "valor": 41}, {"id": "r11", "nome": "Google One", "tipo": "Fixa", "valor": 24}, {"id": "r12", "nome": "Gasolina", "tipo": "Variável", "valor": 500}, {"id": "r13", "nome": "Mercado/alimentação (aprox.)", "tipo": "Variável", "valor": 1000}, {"id": "r14", "nome": "Placa solar (mensal até abr/2028)", "tipo": "Parcelada", "valor": 280}, {"id": "r16", "nome": "Faculdade Fernanda", "tipo": "Parcelada", "valor": 1300}, {"id": "r17", "nome": "Faculdade Sheila", "tipo": "Parcelada", "valor": 130}, {"id": "r19", "nome": "C6 – parcela 20/36", "tipo": "Parcelada", "valor": 91}, {"id": "r21", "nome": "Itaú – parcela 18/46", "tipo": "Parcelada", "valor": 365}, {"id": "r24", "nome": "Prestação da casa (a partir de abr/27)", "tipo": "Fixa", "valor": 280}], "totEntradas": 6792.0, "totSaidas": 5855, "sobra": 937.0, "aporte": 500, "saldo": 24615.98, "reserva": 7531.3, "total": 32147.28}, {"key": "2027-11", "label": "11/2027", "entradas": [{"nome": "Salário líquido (desc. consig. 16/48 + novo 11/48 de R$ 508)", "valor": 6792.0}], "saidas": [{"id": "r5", "nome": "Aluguel + condomínio", "tipo": "Fixa", "valor": 1182}, {"id": "r6", "nome": "Luz", "tipo": "Fixa", "valor": 400}, {"id": "r7", "nome": "Internet", "tipo": "Fixa", "valor": 99}, {"id": "r8", "nome": "Celular Claro", "tipo": "Fixa", "valor": 73}, {"id": "r9", "nome": "Celular Vivo", "tipo": "Fixa", "valor": 90}, {"id": "r10", "nome": "Spotify", "tipo": "Fixa", "valor": 41}, {"id": "r11", "nome": "Google One", "tipo": "Fixa", "valor": 24}, {"id": "r12", "nome": "Gasolina", "tipo": "Variável", "valor": 500}, {"id": "r13", "nome": "Mercado/alimentação (aprox.)", "tipo": "Variável", "valor": 1000}, {"id": "r14", "nome": "Placa solar (mensal até abr/2028)", "tipo": "Parcelada", "valor": 280}, {"id": "r16", "nome": "Faculdade Fernanda", "tipo": "Parcelada", "valor": 1300}, {"id": "r17", "nome": "Faculdade Sheila", "tipo": "Parcelada", "valor": 130}, {"id": "r19", "nome": "C6 – parcela 20/36", "tipo": "Parcelada", "valor": 91}, {"id": "r21", "nome": "Itaú – parcela 18/46", "tipo": "Parcelada", "valor": 365}, {"id": "r24", "nome": "Prestação da casa (a partir de abr/27)", "tipo": "Fixa", "valor": 280}], "totEntradas": 6792.0, "totSaidas": 5855, "sobra": 937.0, "aporte": 500, "saldo": 25052.98, "reserva": 8031.3, "total": 33084.28}, {"key": "2027-12", "label": "12/2027", "entradas": [{"nome": "Salário líquido (desc. consig. 17/48 + novo 12/48 de R$ 508)", "valor": 6792.0}], "saidas": [{"id": "r5", "nome": "Aluguel + condomínio", "tipo": "Fixa", "valor": 1182}, {"id": "r6", "nome": "Luz", "tipo": "Fixa", "valor": 400}, {"id": "r7", "nome": "Internet", "tipo": "Fixa", "valor": 99}, {"id": "r8", "nome": "Celular Claro", "tipo": "Fixa", "valor": 73}, {"id": "r9", "nome": "Celular Vivo", "tipo": "Fixa", "valor": 90}, {"id": "r10", "nome": "Spotify", "tipo": "Fixa", "valor": 41}, {"id": "r11", "nome": "Google One", "tipo": "Fixa", "valor": 24}, {"id": "r12", "nome": "Gasolina", "tipo": "Variável", "valor": 500}, {"id": "r13", "nome": "Mercado/alimentação (aprox.)", "tipo": "Variável", "valor": 1000}, {"id": "r14", "nome": "Placa solar (mensal até abr/2028)", "tipo": "Parcelada", "valor": 280}, {"id": "r16", "nome": "Faculdade Fernanda", "tipo": "Parcelada", "valor": 1300}, {"id": "r17", "nome": "Faculdade Sheila", "tipo": "Parcelada", "valor": 130}, {"id": "r19", "nome": "C6 – parcela 20/36", "tipo": "Parcelada", "valor": 91}, {"id": "r21", "nome": "Itaú – parcela 18/46", "tipo": "Parcelada", "valor": 365}, {"id": "r24", "nome": "Prestação da casa (a partir de abr/27)", "tipo": "Fixa", "valor": 280}], "totEntradas": 6792.0, "totSaidas": 5855, "sobra": 937.0, "aporte": 500, "saldo": 25489.98, "reserva": 8531.3, "total": 34021.28}], "summary": {"saldoAtual": 0.0, "meta": 41280.23, "reservaDez27": 8531.3, "aporteNecessario": 2849.87, "menorSaldo": 3413.32, "totalAPagar": 107571.54, "dividaPai": 0}, "workConfig": {"salarioBase": 11285.0, "escala": "2x2 (18:00 às 06:00)", "adicNoturnoPerc": 30, "diasTrabalhadosMes": 15, "diasMes": 30, "modoAdicional": "dias_trabalhados", "feriasInicio": "2027-03-21", "feriasDiasGozo": 20, "feriasDiasVendidos": 10, "descontoConsignado": 2857.0, "consignadoPagas": 4, "consignadoTotal": 48, "descontoExtraJan27": 508.0, "salarioLiquidoAntesConsig": 10157.0, "descontoExtraTotalParc": 48}}</script>
+<script>
+(function () {
+  var DEFAULT_DATA = JSON.parse(document.getElementById('data').textContent);
+  var STORAGE_KEY = 'financas_sheila_v12';
+  var PAID_KEY = 'pagos_sheila_v2';
+  var THEME_KEY = 'tema_sheila_v2';
+
+  var DATA = loadState();
+  var paid = loadPaid();
+  var sel = 0;
+  var filterTipo = 'Todos';
+
+  var MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var ABREV = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  var brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+  var fmt = function (v) { return brl.format(v || 0); };
+
+  var NOTES = {
+    '2026-11|r_pai': 'Pagamento programado para 30/11/2026 (quitação da dívida com o pai).',
+    '2026-12|r25': 'Inclui a fatura atrasada de R$ 4.903,25 e R$ 1.340,32 de compras. Vence em 07/12.',
+    '2026-11|r15': 'Parcela em atraso',
+    '2026-11|r26': 'Gasto extra informado para novembro',
+    '2026-11|r23': 'Pix parcelado (4, 16 e 23/12), antecipado para novembro para cobrir antes do pagamento de 30/12',
+    '2026-11|r_cooperfemsa': 'Desconto/despesa pontual da Cooperfemsa no dia 30/11/2026'
+  };
+
+  function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+  function loadState() {
+    try {
+      var saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return clone(DEFAULT_DATA);
+  }
+  function saveState() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); } catch (e) {}
+  }
+  function loadPaid() {
+    try {
+      var p = localStorage.getItem(PAID_KEY) || localStorage.getItem('pagos');
+      if (p) return JSON.parse(p);
+    } catch (e) {}
+    return {};
+  }
+  function savePaid() {
+    try { localStorage.setItem(PAID_KEY, JSON.stringify(paid)); } catch (e) {}
+  }
+
+  /* ---- Cálculos Trabalhistas: Salário 2x2 Noturno, Consignado em Folha & Férias ---- */
+  function calcWorkMetrics(cfg) {
+    var base = Number(cfg.salarioBase) || 11285;
+    var percNot = (Number(cfg.adicNoturnoPerc) || 30) / 100;
+    var diasTrab = Number(cfg.diasTrabalhadosMes) || 15;
+    var diasMes = Number(cfg.diasMes) || 30;
+    var adicNoturno = 0;
+
+    if (cfg.modoAdicional === 'horas_noturnas') {
+      var horasNot = diasTrab * 8;
+      adicNoturno = (base / 220) * horasNot * percNot;
+    } else {
+      adicNoturno = base * (diasTrab / diasMes) * percNot;
+    }
+
+    var brutoMensal = base + adicNoturno;
+    var inss = Math.min(brutoMensal * 0.14, 988.09);
+    var baseIrrf = Math.max(0, brutoMensal - inss);
+    var irrf = baseIrrf > 4664.68 ? Math.max(0, baseIrrf * 0.275 - 908.73) : 0;
+
+    var consig = Number(cfg.descontoConsignado) != null ? Number(cfg.descontoConsignado) : 2857.00;
+    var extraJan27 = Number(cfg.descontoExtraJan27) != null ? Number(cfg.descontoExtraJan27) : 508.00;
+    // Salário líquido informado já com o consignado descontado: R$ 7.300,00 (ou ajustado dinamicamente se o usuário alterar o base/dias)
+    var diffSimulacao = (brutoMensal - inss - irrf) - 9601.23;
+    var liquidoComConsig = 7300.00 + diffSimulacao - (consig - 2857.00);
+    var liquidoAntesConsig = liquidoComConsig + consig;
+    var liquidoJan27 = liquidoComConsig - extraJan27;
+
+    // Férias
+    var diasGozo = Number(cfg.feriasDiasGozo) || 20;
+    var diasVendidos = Number(cfg.feriasDiasVendidos) || 10;
+    var feriasBruto = brutoMensal * (diasGozo / 30);
+    var tercoFerias = feriasBruto / 3;
+    var totalFeriasTrib = feriasBruto + tercoFerias;
+    var inssFerias = Math.min(totalFeriasTrib * 0.14, 988.09);
+    var irrfFerias = Math.max(0, (totalFeriasTrib - inssFerias) * 0.275 - 908.73);
+    var feriasLiquido = totalFeriasTrib - inssFerias - irrfFerias;
+
+    // Abono pecuniário (dias vendidos + 1/3) — isento de INSS e IRRF
+    var abonoValor = brutoMensal * (diasVendidos / 30);
+    var tercoAbono = abonoValor / 3;
+    var abonoLiquido = abonoValor + tercoAbono;
+    var totalReceberFerias = feriasLiquido + abonoLiquido;
+
+    // Datas de início, fim do gozo e retorno
+    var parts = (cfg.feriasInicio || '2027-03-21').split('-');
+    var dtIni = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]), 12, 0, 0);
+    var dtFimGozo = new Date(dtIni);
+    dtFimGozo.setDate(dtIni.getDate() + diasGozo - 1);
+    var dtRetorno = new Date(dtFimGozo);
+    dtRetorno.setDate(dtFimGozo.getDate() + 1);
+
+    var diasGozoMesSeguinte = 0;
+    for (var d = 0; d < diasGozo; d++) {
+      var cur = new Date(dtIni);
+      cur.setDate(dtIni.getDate() + d);
+      if (cur.getMonth() !== dtIni.getMonth()) diasGozoMesSeguinte++;
+    }
+    var diasTrabMesRetorno = Math.max(0, 30 - diasGozoMesSeguinte);
+    var salarioMesRetornoLiq = (liquidoAntesConsig * (diasTrabMesRetorno / 30)) - consig - extraJan27;
+
+    return {
+      base: base,
+      adicNoturno: adicNoturno,
+      brutoMensal: brutoMensal,
+      inss: inss,
+      irrf: irrf,
+      consig: consig,
+      extraJan27: extraJan27,
+      liquidoAntesConsig: liquidoAntesConsig,
+      liquidoMensal: liquidoComConsig,
+      liquidoJan27: liquidoJan27,
+      diasGozo: diasGozo,
+      diasVendidos: diasVendidos,
+      feriasBruto: feriasBruto,
+      tercoFerias: tercoFerias,
+      totalFeriasTrib: totalFeriasTrib,
+      inssFerias: inssFerias,
+      irrfFerias: irrfFerias,
+      feriasLiquido: feriasLiquido,
+      abonoValor: abonoValor,
+      tercoAbono: tercoAbono,
+      abonoLiquido: abonoLiquido,
+      totalReceberFerias: totalReceberFerias,
+      dtIni: dtIni,
+      dtFimGozo: dtFimGozo,
+      dtRetorno: dtRetorno,
+      diasGozoMesSeguinte: diasGozoMesSeguinte,
+      diasTrabMesRetorno: diasTrabMesRetorno,
+      salarioMesRetornoLiq: salarioMesRetornoLiq
+    };
+  }
+
+  function formatDateBR(dt) {
+    var diasSem = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+    var dd = String(dt.getDate()).padStart(2, '0');
+    var mm = String(dt.getMonth() + 1).padStart(2, '0');
+    var yyyy = dt.getFullYear();
+    return dd + '/' + mm + '/' + yyyy + ' (' + diasSem[dt.getDay()] + ')';
+  }
+
+  /* ---- Recálculo Dinâmico de Todos os Meses ---- */
+  function recalculateAll() {
+    var saldoAnt = Number(DATA.summary.saldoAtual) || 0;
+    var reservaAnt = 0;
+    var menorSaldo = Infinity;
+    var totalAPagar = 0;
+
+    DATA.months.forEach(function (m) {
+      m.totEntradas = Number(m.entradas.reduce(function (acc, e) { return acc + (Number(e.valor) || 0); }, 0).toFixed(2));
+      m.totSaidas = Number(m.saidas.reduce(function (acc, s) { return acc + (Number(s.valor) || 0); }, 0).toFixed(2));
+      m.sobra = Number((m.totEntradas - m.totSaidas).toFixed(2));
+      var aporte = Number(m.aporte) || 0;
+      m.saldo = Number((saldoAnt + m.sobra - aporte).toFixed(2));
+      m.reserva = Number((reservaAnt + aporte).toFixed(2));
+      m.total = Number((m.saldo + m.reserva).toFixed(2));
+      if (m.saldo < menorSaldo) menorSaldo = m.saldo;
+      totalAPagar += m.totSaidas;
+      saldoAnt = m.saldo;
+      reservaAnt = m.reserva;
+    });
+
+    DATA.summary.reservaDez27 = DATA.months[DATA.months.length - 1].reserva;
+    DATA.summary.menorSaldo = menorSaldo;
+    DATA.summary.totalAPagar = Number(totalAPagar.toFixed(2));
+  }
+
+  function applyWorkConfigToMonths() {
+    var w = calcWorkMetrics(DATA.workConfig);
+    var retKey = w.dtRetorno.getFullYear() + '-' + String(w.dtRetorno.getMonth() + 1).padStart(2, '0');
+    var pagasBase = Number(DATA.workConfig.consignadoPagas) || 4;
+    var totalParc = Number(DATA.workConfig.consignadoTotal) || 48;
+
+    DATA.months.forEach(function (m, idx) {
+      var parcNum = pagasBase + idx; // 2026-11 = 4, 2026-12 = 5, 2027-01 = 6...
+      var parcNovo = idx - 1; // 2027-01 = 1/48
+      var totalParcNovo = Number(DATA.workConfig.descontoExtraTotalParc) || 48;
+      var temConsig = parcNum <= totalParc;
+      var temExtraJan = m.key >= '2027-01' && parcNovo <= totalParcNovo;
+
+      m.entradas.forEach(function (e) {
+        if (e.nome.indexOf('Salário') === 0) {
+          if (m.key === retKey && w.diasGozoMesSeguinte > 0) {
+            e.nome = 'Salário ' + w.diasTrabMesRetorno + 'd pós-férias (desc. consig. ' + parcNum + '/' + totalParc + ' + novo ' + parcNovo + '/' + totalParcNovo + ' de R$ ' + w.extraJan27.toFixed(0) + ')';
+            e.valor = Number(w.salarioMesRetornoLiq.toFixed(2));
+          } else if (temExtraJan) {
+            e.nome = 'Salário líquido (desc. consig. ' + parcNum + '/' + totalParc + ' + novo ' + parcNovo + '/' + totalParcNovo + ' de R$ ' + w.extraJan27.toFixed(0) + ')';
+            e.valor = Number(w.liquidoJan27.toFixed(2));
+          } else {
+            e.nome = 'Salário líquido (já desc. consignado ' + parcNum + '/' + totalParc + ' de ' + fmt(w.consig) + ')';
+            e.valor = Number(w.liquidoMensal.toFixed(2));
+          }
+        }
+        if (e.nome.indexOf('Férias') === 0) {
+          e.nome = 'Férias (' + w.diasGozo + 'd + 1/3) + Abono (' + w.diasVendidos + 'd + 1/3) líq.';
+          e.valor = Number(w.totalReceberFerias.toFixed(2));
+        }
+      });
+    });
+
+    recalculateAll();
+    saveState();
+  }
+
+  recalculateAll();
+
+  /* ---- Helper DOM ---- */
+  function h(tag, props) {
+    var e = document.createElement(tag);
+    if (props) Object.keys(props).forEach(function (k) {
+      var v = props[k];
+      if (k === 'class') e.className = v;
+      else if (k === 'text') e.textContent = v;
+      else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), v);
+      else if (v === true) e.setAttribute(k, '');
+      else if (v !== false && v != null) e.setAttribute(k, v);
+    });
+    for (var i = 2; i < arguments.length; i++) {
+      var kids = [].concat(arguments[i]);
+      kids.forEach(function (kid) {
+        if (kid == null || kid === false) return;
+        e.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+      });
+    }
+    return e;
+  }
+
+  function monthName(m) { var p = m.key.split('-'); return MESES[+p[1] - 1] + ' de ' + p[0]; }
+  function chipLabel(m) { var p = m.key.split('-'); return ABREV[+p[1] - 1] + '/' + p[0].slice(2); }
+  function noteFor(m, i) { return i.nota || NOTES[m.key + '|' + i.id] || (i.id === 'r13' ? 'Valor aproximado' : null); }
+
+  function togglePaid(key) {
+    if (paid[key]) delete paid[key]; else paid[key] = true;
+    savePaid();
+    render();
+  }
+
+  /* ---- Blocos da Interface ---- */
+  function stat(k, v, cls) {
+    return h('div', { class: 'stat' }, h('dt', { text: k }), h('dd', { class: cls || '', text: v }));
+  }
+
+  function hero(m, idx) {
+    var posSaldo = m.saldo >= 0;
+    var posMes = m.sobra >= 0;
+    var saldoAnt = idx === 0 ? (Number(DATA.summary.saldoAtual) || 0) : DATA.months[idx - 1].saldo;
+    var resultText = (posMes ? '+' : '') + fmt(m.sobra);
+    return h('section', { class: 'hero' },
+      h('p', { class: 'eyebrow', text: monthName(m) + ' • Saldo Acumulado' }),
+      h('p', { class: 'big ' + (posSaldo ? 'pos' : 'neg'), text: fmt(m.saldo) }),
+      h('p', { class: 'big-label', text: idx === 0 ? 'saldo previsto em conta no fim de novembro (já somando saldo inicial, entradas e saídas)' : 'saldo acumulado em conta (saldo anterior + entradas − saídas − reserva)' }),
+      h('dl', { class: 'stats' },
+        stat('Vindo do mês ant.', fmt(saldoAnt)),
+        stat('Entradas do mês', fmt(m.totEntradas), 'pos'),
+        stat('Saídas' + (m.aporte > 0 ? ' + Reserva' : ''), fmt(m.totSaidas + (Number(m.aporte) || 0))),
+        stat('Balanço só do mês', resultText, posMes ? 'pos' : 'neg')));
+  }
+
+  function alertsFor(m) {
+    var a = [];
+    var w = calcWorkMetrics(DATA.workConfig);
+    if (m.key === '2026-11') {
+      a.push(['pos', 'Fluxo 100% positivo (sobra de +R$ 6.331,05): ', 'somando o saldo inicial em conta (R$ 11.190,00) + salário líquido (R$ 7.300,00) + 1ª parcela do 13º (R$ 7.335,25), você quita os R$ 11.000,00 do seu pai em 30/11 e ainda fecha novembro com +R$ 6.331,05 livres em conta.']);
+      a.push(['info', 'Consignado (Parcela 4/48): ', 'já descontado R$ 2.857,00 no salário deste mês.']);
+    }
+    if (m.key === '2026-12') {
+      a.push(['pos', 'Aluguel recebido (chq dia 10): ', 'entrada de R$ 1.300,00 programada para todo dia 10, de dezembro/2026 até abril/2027.']);
+      a.push(['pos', '13º Salário (2ª parcela incluída): ', 'estimativa líquida de R$ 2.265,98 (já descontados INSS, IRRF e a 1ª parcela de R$ 7.335,25).']);
+      a.push(['neg', 'Cartão atrasado + Fatura: ', 'R$ 6.243,57 vencem em 07/12 (inclui R$ 4.903,25 em atraso). Como o cheque do aluguel entra dia 10/12, o saldo acumulado de novembro (+R$ 6.331,05) cobre o vencimento do dia 07 sem ficar negativo.']);
+    }
+    if (m.key === '2027-01') {
+      a.push(['warn', 'Novo desconto em folha (1/48 de R$ 508,00): ', 'a partir deste mês o salário líquido passa de R$ 7.300,00 para R$ 6.792,00 (consignado parcela 6/48 de R$ 2.857,00 + novo desconto 1/48 de R$ 508,00).']);
+    }
+    if (m.key === '2027-03') {
+      a.push(['pos', 'Férias + Abono (21/03/2027): ', 'gozo de ' + w.diasGozo + ' dias (21/03 a ' + String(w.dtFimGozo.getDate()).padStart(2,'0') + '/' + String(w.dtFimGozo.getMonth()+1).padStart(2,'0') + ') + ' + w.diasVendidos + ' dias vendidos. Crédito líquido estimado de ' + fmt(w.totalReceberFerias) + ' até 19/03!']);
+      a.push(['info', 'Aviso sobre início no domingo: ', '21/03/2027 cai em um domingo. Pela CLT (art. 134 §3º), férias não podem iniciar nos 2 dias que antecedem folga/DSR — confirme com o RH da Coca-Cola FEMSA se o início oficial na escala 2x2 será ajustado.']);
+    }
+    if (m.key === '2027-04') {
+      a.push(['pos', 'Retorno das férias: ', 'término do gozo em ' + formatDateBR(w.dtFimGozo) + ', com retorno previsto a partir de ' + formatDateBR(w.dtRetorno) + ' (conforme seu próximo plantão na escala 2x2).']);
+      a.push(['info', 'Último cheque do aluguel (10/04/2027): ', 'última entrada de R$ 1.300,00 referente ao aluguel, mês em que também inicia a prestação da casa (R$ 280,00).']);
+      a.push(['info', 'Folha de abril proporcionada: ', 'salário ajustado para ' + w.diasTrabMesRetorno + ' dias (' + fmt(w.salarioMesRetornoLiq) + '), pois 9 dias de abril foram pagos antecipadamente nas férias.']);
+    }
+    if (m.sobra < 0 && m.key !== '2026-11' && m.key !== '2026-12') {
+      a.push(['warn', 'Mês no vermelho: ', 'as saídas passam das entradas em ' + fmt(-m.sobra) + '.']);
+    }
+    if (!a.length) return null;
+    return h('ul', { class: 'alerts' }, a.map(function (x) { return h('li', { class: 'alert ' + x[0] }, h('b', { text: x[1] }), x[2]); }));
+  }
+
+  /* ---- Card de Cálculo de Salário 2x2 & Férias ---- */
+  function workAndVacationCard() {
+    var cfg = DATA.workConfig;
+    var w = calcWorkMetrics(cfg);
+
+    var inpBase = h('input', {
+      type: 'number', step: '0.01', class: 'inp', value: cfg.salarioBase,
+      onchange: function (e) { cfg.salarioBase = parseFloat(e.target.value) || 0; applyWorkConfigToMonths(); render(); }
+    });
+    var inpDias = h('input', {
+      type: 'number', min: '1', max: '30', class: 'inp', value: cfg.diasTrabalhadosMes,
+      onchange: function (e) { cfg.diasTrabalhadosMes = parseInt(e.target.value, 10) || 15; applyWorkConfigToMonths(); render(); }
+    });
+    var selModo = h('select', {
+      class: 'inp',
+      onchange: function (e) { cfg.modoAdicional = e.target.value; applyWorkConfigToMonths(); render(); }
+    },
+      h('option', { value: 'dias_trabalhados', selected: cfg.modoAdicional === 'dias_trabalhados', text: '30% sobre dias trab. (' + cfg.diasTrabalhadosMes + '/30)' }),
+      h('option', { value: 'horas_noturnas', selected: cfg.modoAdicional === 'horas_noturnas', text: '30% horas noturnas (22h-05h)' })
+    );
+    var inpDataFerias = h('input', {
+      type: 'date', class: 'inp', value: cfg.feriasInicio,
+      onchange: function (e) { cfg.feriasInicio = e.target.value || '2027-03-21'; applyWorkConfigToMonths(); render(); }
+    });
+    var inpGozo = h('input', {
+      type: 'number', min: '5', max: '30', class: 'inp', value: cfg.feriasDiasGozo,
+      onchange: function (e) { cfg.feriasDiasGozo = parseInt(e.target.value, 10) || 20; applyWorkConfigToMonths(); render(); }
+    });
+    var inpVendidos = h('input', {
+      type: 'number', min: '0', max: '10', class: 'inp', value: cfg.feriasDiasVendidos,
+      onchange: function (e) { cfg.feriasDiasVendidos = parseInt(e.target.value, 10) || 10; applyWorkConfigToMonths(); render(); }
+    });
+
+    return h('section', { class: 'card' },
+      h('div', { class: 'card-head' },
+        h('h2', { text: 'Salário (Escala 2x2 Noturno) & Férias 2027' }),
+        h('span', { class: 'sub', text: '18:00 às 06:00 • Adic. 30%' })
+      ),
+      h('div', { class: 'sim-controls' },
+        h('div', { class: 'field' }, h('label', { text: 'Salário Base (R$)' }), inpBase),
+        h('div', { class: 'field' }, h('label', { text: 'Plantões/mês (2x2)' }), inpDias),
+        h('div', { class: 'field' }, h('label', { text: 'Regra Adic. Noturno' }), selModo),
+        h('div', { class: 'field' }, h('label', { text: 'Início das Férias' }), inpDataFerias),
+        h('div', { class: 'field' }, h('label', { text: 'Dias de Gozo' }), inpGozo),
+        h('div', { class: 'field' }, h('label', { text: 'Dias Vendidos (Abono)' }), inpVendidos)
+      ),
+      h('div', { class: 'grid-2' },
+        h('div', { class: 'box-info' },
+          h('h3', { text: 'Composição Salarial & Descontos em Folha' }),
+          h('div', { class: 'mini-row' }, h('span', { text: 'Salário base + Adic. noturno 30%' }), h('span', { text: fmt(w.brutoMensal) })),
+          h('div', { class: 'mini-row' }, h('span', { text: 'Líquido antes do consignado' }), h('span', { text: fmt(w.liquidoAntesConsig) })),
+          h('div', { class: 'mini-row' }, h('span', { text: 'Empréstimo consignado (4/48 pagas)' }), h('span', { text: '- ' + fmt(w.consig) })),
+          h('div', { class: 'mini-row' }, h('span', { text: 'Líquido em conta até 12/2026' }), h('span', { text: fmt(w.liquidoMensal) })),
+          h('div', { class: 'mini-row' }, h('span', { text: 'Novo consignado 48x (a partir 01/2027)' }), h('span', { text: '- ' + fmt(w.extraJan27) })),
+          h('div', { class: 'mini-row total' }, h('span', { text: 'Salário líquido a partir de 01/2027' }), h('span', { text: fmt(w.liquidoJan27) }))
+        ),
+        h('div', { class: 'box-info' },
+          h('h3', { text: 'Cálculo de Férias & Retorno' }),
+          h('div', { class: 'mini-row' }, h('span', { text: 'Início das férias' }), h('span', { text: formatDateBR(w.dtIni).split(' (')[0] })),
+          h('div', { class: 'mini-row' }, h('span', { text: 'Último dia de gozo (' + w.diasGozo + 'd)' }), h('span', { text: formatDateBR(w.dtFimGozo).split(' (')[0] })),
+          h('div', { class: 'mini-row' }, h('span', { text: 'Retorno previsto' }), h('span', { text: formatDateBR(w.dtRetorno) })),
+          h('div', { class: 'mini-row' }, h('span', { text: w.diasGozo + 'd férias + 1/3 (líq.)' }), h('span', { text: fmt(w.feriasLiquido) })),
+          h('div', { class: 'mini-row' }, h('span', { text: w.diasVendidos + 'd abono + 1/3 (isento)' }), h('span', { text: fmt(w.abonoLiquido) })),
+          h('div', { class: 'mini-row total' }, h('span', { text: 'Total líquido férias (03/27)' }), h('span', { text: fmt(w.totalReceberFerias) }))
+        )
+      ),
+      h('p', { class: 'note', text: 'Os valores líquidos calculados acima alimentam automaticamente as entradas mensais (incluindo 11/2026) e a folha proporcionada de abril/2027.' })
+    );
+  }
+
+  function payables(m) {
+    var tipos = ['Todos', 'Fixa', 'Parcelada', 'Variável', 'Dívida', 'Pontual'];
+    var allItems = m.saidas.slice().sort(function (x, y) { return y.valor - x.valor; });
+    var items = filterTipo === 'Todos' ? allItems : allItems.filter(function (i) { return i.tipo === filterTipo; });
+
+    var total = 0, done = 0;
+    allItems.forEach(function (i) { total += i.valor; if (paid[m.key + '_' + i.id]) done += i.valor; });
+    var bar = h('div', { class: 'bar', 'aria-hidden': 'true' }, h('span'));
+    bar.firstChild.style.width = (total ? Math.round(done / total * 100) : 0) + '%';
+
+    var filterBar = h('div', { class: 'filters' }, tipos.map(function (t) {
+      return h('button', {
+        type: 'button',
+        class: 'f-btn' + (filterTipo === t ? ' active' : ''),
+        text: t,
+        onclick: function () { filterTipo = t; render(); }
+      });
+    }));
+
+    var inpNome = h('input', { type: 'text', class: 'inp', placeholder: 'Nova despesa (ex: Farmácia)' });
+    var selTipo = h('select', { class: 'inp' },
+      ['Pontual', 'Variável', 'Fixa', 'Parcelada', 'Dívida'].map(function (t) { return h('option', { value: t, text: t }); })
+    );
+    var inpVal = h('input', { type: 'number', step: '0.01', class: 'inp', placeholder: 'Valor (R$)' });
+    var formAdd = h('form', {
+      class: 'add-form saidas-grid',
+      onsubmit: function (ev) {
+        ev.preventDefault();
+        var nome = inpNome.value.trim();
+        var val = parseFloat(inpVal.value);
+        if (!nome || isNaN(val) || val <= 0) return;
+        m.saidas.push({ id: 'custom_' + Date.now(), nome: nome, tipo: selTipo.value, valor: Number(val.toFixed(2)) });
+        recalculateAll();
+        saveState();
+        render();
+      }
+    }, inpNome, selTipo, inpVal, h('button', { type: 'submit', class: 'btn-primary', text: '+ Adicionar' }));
+
+    return h('section', { class: 'card' },
+      h('div', { class: 'card-head' },
+        h('h2', { text: 'A pagar neste mês' }),
+        h('span', { class: 'sub', text: fmt(done) + ' de ' + fmt(total) + ' pagos' })
+      ),
+      bar,
+      filterBar,
+      h('ul', { class: 'list' }, items.map(function (i) {
+        var key = m.key + '_' + i.id, on = !!paid[key], note = noteFor(m, i);
+        var badgeCls = 'badge' + (i.tipo === 'Pontual' ? ' pontual' : (i.tipo === 'Dívida' ? ' divida' : ''));
+        return h('li', { class: 'row' + (on ? ' done' : '') },
+          h('label', { for: 'chk-' + key },
+            h('input', { type: 'checkbox', id: 'chk-' + key, checked: on, onchange: function () { togglePaid(key); } }),
+            h('span', { class: 'name' },
+              i.nome,
+              h('span', { class: badgeCls, text: i.tipo }),
+              note ? h('small', { text: note }) : null
+            ),
+            h('span', { class: 'val', text: fmt(i.valor) })
+          ),
+          h('button', {
+            type: 'button', class: 'del-btn', title: 'Remover despesa', text: '✕',
+            onclick: function () {
+              m.saidas = m.saidas.filter(function (x) { return x.id !== i.id; });
+              recalculateAll(); saveState(); render();
+            }
+          })
+        );
+      })),
+      formAdd
+    );
+  }
+
+  function incomes(m, idx) {
+    var saldoAnt = idx === 0 ? (Number(DATA.summary.saldoAtual) || 0) : DATA.months[idx - 1].saldo;
+    var totalDisponivel = saldoAnt + m.totEntradas;
+    var inpNome = h('input', { type: 'text', class: 'inp', placeholder: 'Nova entrada (ex: Hora extra, Reembolso)' });
+    var inpVal = h('input', { type: 'number', step: '0.01', class: 'inp', placeholder: 'Valor (R$)' });
+    var formAdd = h('form', {
+      class: 'add-form',
+      onsubmit: function (ev) {
+        ev.preventDefault();
+        var nome = inpNome.value.trim();
+        var val = parseFloat(inpVal.value);
+        if (!nome || isNaN(val) || val <= 0) return;
+        m.entradas.push({ nome: nome, valor: Number(val.toFixed(2)) });
+        recalculateAll(); saveState(); render();
+      }
+    }, inpNome, inpVal, h('button', { type: 'submit', class: 'btn-primary', text: '+ Entrada' }));
+
+    var carryRow = idx > 0 ? h('div', { class: 'plain', style: 'background:var(--accent-soft);margin-inline:-0.5rem;padding-inline:0.5rem;border-radius:8px;color:var(--accent)' },
+      h('span', { style: 'font-weight:600', text: '↳ Saldo acumulado de ' + chipLabel(DATA.months[idx - 1]) }),
+      h('span', { style: 'font-family:var(--font-display);font-weight:700', text: fmt(saldoAnt) })
+    ) : null;
+
+    return h('section', { class: 'card' },
+      h('div', { class: 'card-head' },
+        h('h2', { text: 'Entradas & Saldo Disponível' }),
+        h('span', { class: 'sub', text: idx > 0 ? ('Total disponível: ' + fmt(totalDisponivel)) : fmt(m.totEntradas) })
+      ),
+      carryRow,
+      m.entradas.length ? m.entradas.map(function (e, eIdx) {
+        return h('div', { class: 'plain' },
+          h('span', { text: e.nome }),
+          h('div', { style: 'display:flex;align-items:center;gap:0.4rem' },
+            h('span', { style: 'font-family:var(--font-display);font-weight:600;font-variant-numeric:tabular-nums', text: fmt(e.valor) }),
+            h('button', {
+              type: 'button', class: 'del-btn', title: 'Remover entrada', text: '✕',
+              onclick: function () { m.entradas.splice(eIdx, 1); recalculateAll(); saveState(); render(); }
+            })
+          )
+        );
+      }) : h('p', { class: 'note', text: 'Sem entradas previstas neste mês.' }),
+      formAdd
+    );
+  }
+
+  function reserve(m) {
+    var pct = Math.min(100, Math.round(m.reserva / DATA.summary.meta * 100));
+    var bar = h('div', { class: 'bar', 'aria-hidden': 'true' }, h('span'));
+    bar.firstChild.style.width = pct + '%';
+
+    var inpAporte = h('input', {
+      type: 'number', step: '10', class: 'inp', style: 'width:120px;text-align:right;font-weight:600',
+      value: m.aporte,
+      onchange: function (e) {
+        m.aporte = parseFloat(e.target.value) || 0;
+        recalculateAll(); saveState(); render();
+      }
+    });
+
+    return h('section', { class: 'card' },
+      h('div', { class: 'card-head' }, h('h2', { text: 'Reserva de Emergência' }), h('span', { class: 'sub', text: pct + '% da meta' })),
+      bar,
+      h('div', { class: 'plain' }, h('span', { text: 'Guardar neste mês (editável)' }), inpAporte),
+      h('div', { class: 'plain' }, h('span', { text: 'Acumulado na reserva até este mês' }), h('span', { text: fmt(m.reserva) })),
+      h('div', { class: 'plain' }, h('span', { text: 'Patrimônio líquido (conta + reserva)' }), h('span', { text: fmt(m.total) })),
+      h('p', { class: 'note', text: 'Meta: ' + fmt(DATA.summary.meta) + ' (6 meses de custo de vida).' }));
+  }
+
+  /* ---- Gráfico SVG ---- */
+  var NS = 'http://www.w3.org/2000/svg';
+  function s(tag, attrs, text) {
+    var e = document.createElementNS(NS, tag);
+    Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function niceStep(range) {
+    var raw = Math.max(range, 1000) / 4, pow = Math.pow(10, Math.floor(Math.log10(raw)));
+    var c = [1, 2, 5, 10];
+    for (var i = 0; i < c.length; i++) if (c[i] * pow >= raw) return c[i] * pow;
+    return 10 * pow;
+  }
+  function tick(v) { return v === 0 ? '0' : (v / 1000).toLocaleString('pt-BR') + ' mil'; }
+  function chartCard(m) {
+    var months = DATA.months;
+    var W = 380, H = 195, pl = 52, pr = 14, pt = 12, pb = 24, n = months.length;
+    var all = [];
+    months.forEach(function (x) { all.push(x.saldo, x.reserva); });
+    var maxV = Math.max.apply(null, all), minV = Math.min(0, Math.min.apply(null, all));
+    var step = niceStep(maxV - minV);
+    var top = Math.ceil(maxV / step) * step, bot = Math.floor(minV / step) * step;
+    if (top === bot) top += step;
+    var X = function (i) { return pl + i * (W - pl - pr) / (n - 1); };
+    var Y = function (v) { return pt + (top - v) * (H - pt - pb) / (top - bot); };
+    var svg = s('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'chart', role: 'img', 'aria-label': 'Evolução do saldo em conta e da reserva' });
+    for (var v = bot; v <= top + 0.001; v += step) {
+      svg.append(s('line', { x1: pl, x2: W - pr, y1: Y(v), y2: Y(v), class: Math.abs(v) < 0.01 ? 'zero' : 'grid' }));
+      svg.append(s('text', { x: pl - 6, y: Y(v) + 3.5, 'text-anchor': 'end' }, tick(v)));
+    }
+    [0, 4, 8, 13].forEach(function (i) { svg.append(s('text', { x: X(i), y: H - 6, 'text-anchor': 'middle' }, chipLabel(months[i]))); });
+    svg.append(s('line', { x1: X(sel), x2: X(sel), y1: pt, y2: H - pb, class: 'sel' }));
+    var pts = function (k) { return months.map(function (x, i) { return X(i).toFixed(1) + ',' + Y(x[k]).toFixed(1); }).join(' '); };
+    svg.append(s('polyline', { points: pts('saldo'), class: 'a' }));
+    svg.append(s('polyline', { points: pts('reserva'), class: 'b' }));
+    svg.append(s('circle', { cx: X(sel), cy: Y(m.saldo), r: 4.5, class: 'pa' }));
+    svg.append(s('circle', { cx: X(sel), cy: Y(m.reserva), r: 4.5, class: 'pb' }));
+    return h('section', { class: 'card' },
+      h('h2', { text: 'Evolução de Saldo e Reserva (11/2026 a 12/2027)' }),
+      svg,
+      h('div', { class: 'legend' },
+        h('span', { class: 'a' }, h('i'), 'Saldo em conta: ' + fmt(m.saldo)),
+        h('span', { class: 'b' }, h('i'), 'Reserva: ' + fmt(m.reserva))),
+      h('p', { class: 'note', text: 'O gráfico atualiza automaticamente sempre que você altera entradas, saídas ou aportes.' }));
+  }
+
+  function overview() {
+    var S = DATA.summary;
+    var rows = [
+      ['Saldo inicial em conta (lançado em Entradas Nov/26)', fmt(11190)],
+      ['Despesa Pai (agendada em 30/11/2026)', fmt(11000)],
+      ['Total de saídas no período (14 meses)', fmt(S.totalAPagar)],
+      ['Reserva prevista em dez/2027', fmt(S.reservaDez27)],
+      ['Menor saldo em conta no período', fmt(S.menorSaldo)]
+    ];
+    return h('section', { class: 'card' },
+      h('h2', { text: 'Resumo Consolidado do Período' }),
+      rows.map(function (r) { return h('div', { class: 'plain' }, h('span', { text: r[0] }), h('span', { text: r[1] })); }));
+  }
+
+  /* ---- Navegação e Controles Globais ---- */
+  var nav = document.getElementById('months'), app = document.getElementById('app');
+
+  function rebuildChips() {
+    nav.replaceChildren();
+    DATA.months.forEach(function (m, i) {
+      var isVac = (m.key === '2027-03' || m.key === '2027-04');
+      nav.append(h('button', {
+        class: 'chip', type: 'button', id: 'chip-' + m.key,
+        onclick: function () { select(i, true); }
+      },
+        chipLabel(m),
+        m.saldo < 0 ? h('span', { class: 'dot', title: 'Saldo acumulado negativo' }) : null,
+        isVac ? h('span', { class: 'dot-vac', title: 'Período de férias' }) : null
+      ));
+    });
+  }
+
+  function updateChips(scroll) {
+    DATA.months.forEach(function (m, i) {
+      var c = document.getElementById('chip-' + m.key);
+      if (!c) return;
+      if (i === sel) c.setAttribute('aria-current', 'true'); else c.removeAttribute('aria-current');
+      if (i === sel && scroll) c.scrollIntoView({ inline: 'center', block: 'nearest' });
+    });
+  }
+
+  function render() {
+    rebuildChips();
+    updateChips(false);
+    var m = DATA.months[sel];
+    var focusId = document.activeElement && document.activeElement.id;
+    app.replaceChildren(
+      hero(m, sel),
+      alertsFor(m),
+      payables(m),
+      incomes(m, sel),
+      workAndVacationCard(),
+      reserve(m),
+      chartCard(m),
+      overview()
+    );
+    if (focusId && focusId.indexOf('chk-') === 0) {
+      var f = document.getElementById(focusId);
+      if (f) f.focus({ preventScroll: true });
+    }
+  }
+
+  function select(i, setHash) {
+    sel = i;
+    render();
+    updateChips(true);
+    if (setHash) {
+      try { history.replaceState(null, '', '#' + DATA.months[i].key); } catch (e) { location.hash = DATA.months[i].key; }
+    }
+  }
+
+  /* Tema claro/escuro */
+  var savedTheme = localStorage.getItem(THEME_KEY);
+  if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+  document.getElementById('btn-theme').addEventListener('click', function () {
+    var cur = document.documentElement.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem(THEME_KEY, next);
+  });
+
+  /* Exportar Backup JSON */
+  document.getElementById('btn-export').addEventListener('click', function () {
+    var blob = new Blob([JSON.stringify({ data: DATA, paid: paid }, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'backup_financas_' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+  });
+
+  /* Restaurar valores originais */
+  document.getElementById('btn-reset').addEventListener('click', function () {
+    if (confirm('Deseja restaurar todos os valores para a projeção padrão?')) {
+      localStorage.removeItem(STORAGE_KEY);
+      DATA = clone(DEFAULT_DATA);
+      recalculateAll();
+      render();
+    }
+  });
+
+  /* Importar Backup JSON */
+  var fileImport = document.getElementById('file-import');
+  document.getElementById('btn-import').addEventListener('click', function () {
+    fileImport.click();
+  });
+  fileImport.addEventListener('change', function (e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function (ev) {
+      try {
+        var parsed = JSON.parse(ev.target.result);
+        if (parsed && parsed.data && Array.isArray(parsed.data.months)) {
+          DATA = parsed.data;
+          if (parsed.paid) { paid = parsed.paid; savePaid(); }
+          recalculateAll();
+          saveState();
+          render();
+          alert('Backup importado com sucesso!');
+        } else {
+          alert('Arquivo de backup inválido.');
+        }
+      } catch (err) {
+        alert('Erro ao ler o arquivo JSON.');
+      }
+      fileImport.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  /* PWA: Service Worker & Botão Instalar App */
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  }
+  var deferredPrompt = null;
+  var btnInstall = document.getElementById('btn-install');
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    btnInstall.style.display = 'inline-flex';
+  });
+  btnInstall.addEventListener('click', function () {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function () {
+      deferredPrompt = null;
+      btnInstall.style.display = 'none';
+    });
+  });
+
+  function fromHash() {
+    var k = location.hash.slice(1);
+    return DATA.months.findIndex(function (m) { return m.key === k; });
+  }
+
+  var start = fromHash();
+  if (start < 0) start = 0; // Abre diretamente em 11/2026 onde está a Despesa Pai
+  window.addEventListener('hashchange', function () { var i = fromHash(); if (i >= 0 && i !== sel) select(i, false); });
+  select(start, false);
+})();
+</script>
+</body>
+</html>
